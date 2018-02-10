@@ -20,6 +20,7 @@ public class SillyString {
     @Override
     public int hashCode() {
         // TODO What is bad about this hash function??
+        // Very easy to get duplicating issues, only works with string
         int total = 0;
         for (int i=0; i<innerString.length(); i++) {
             total += innerString.charAt(i);
