@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class HeapSort extends SortAlgorithm {
     int size;
     int[] heap;
@@ -18,7 +20,15 @@ public class HeapSort extends SortAlgorithm {
     // Corrects the position of element indexed i by sinking it.
     // Use either recursion or a loop to then sink the child
     public void sink(int i) {
-        // TODO
+        while ((leftChild(i) < size && heap[i] < heap[leftChild(i)]) || (rightChild(i)<size && heap[i] < heap[rightChild(i)])) {
+            if (rightChild(i) >= size || heap[leftChild(i)]> heap[rightChild(i)]) {
+                swap(heap, i, leftChild(i));
+                i = leftChild(i);
+            } else {
+                swap(heap, i, rightChild(i));
+                i = rightChild(i);
+            }
+        }
     }
 
     // Given the array, build a heap by correcting every non-leaf's position, starting from the bottom, then
@@ -28,23 +38,25 @@ public class HeapSort extends SortAlgorithm {
         this.size = array.length;
 
         for (int i=this.size / 2 - 1; i>=0; i--) {
-            // TODO
+            sink(i);
         }
     }
 
     /**
-     * Best-case runtime:
-     * Worst-case runtime:
-     * Average-case runtime:
+     * Best-case runtime: O(N log N)
+     * Worst-case runtime: O(N log N)
+     * Average-case runtime: O(N log N)
      *
-     * Space-complexity:
+     * Space-complexity: O(N)
      */
     @Override
     public int[] sort(int[] array) {
         heapify(array);
 
         for (int i=size-1; i>0; i--) {
-            // TODO
+            swap(heap, i,0);
+            size--;
+            sink(0);
         }
 
         return heap;
