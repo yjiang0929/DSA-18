@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class PeakFinding {
 
     // Return -1 if left is higher, 1 if right is higher, 0 if peak
@@ -49,55 +47,52 @@ public class PeakFinding {
         return maxIndex;
     }
 
+
     public static int findOneDPeak(int[] nums) {
-        int left = 0;
-        int right = nums.length;
-        while (right-left > 0) {
-            int mid = (left + right) / 2;
-            if (peakOneD(mid, nums)== 0 || (right-left)==1) {
-                return mid;
-            } else if (peakOneD(mid,nums) == -1) {
-                right = mid;
-            } else {
-                left = mid;
-            }
+        // TODO
+        int lo = 0;
+        int hi = nums.length;
+        while (lo < hi) {
+            int mid = (hi + lo) / 2;
+            int direction = peakOneD(mid, nums);
+            if (direction == 0) return mid;
+            else if (direction == -1) hi = mid;
+            else if (direction == 1) lo = mid + 1;
         }
-        return 0;
+        return -1;
     }
 
     public static int[] findTwoDPeak(int[][] nums) {
-        int left = 0;
-        int right = nums.length;
-        int top = 0;
-        int bottom = nums.length;
-        int counter = 0;
-        while (right>left && bottom>top) {
-            int mid_row = (left + right) / 2;
-            int mid_col = (top +bottom) / 2;
-            if (counter % 2 == 0) {
-                int peak_col = maxYIndex(mid_row, top, bottom, nums);
-                if (peakX(mid_row, peak_col, nums) == 0) {
-                    int[] res = {peak_col, mid_row};
-                    return res;
-                } else if (peakX(mid_row, peak_col, nums)==-1) {
-                    right = mid_row;
-                } else {
-                    left = mid_row;
-                }
+        int loX = 0;
+        int hiX = nums[0].length;
+        int loY = 0;
+        int hiY = nums.length;
+        boolean middleColumn = true;
+        while (hiX > loX && hiY > loY) {
+            if (middleColumn) {
+                int midX = (hiX + loX) / 2;
+                int yMax = maxYIndex(midX, loY, hiY, nums);
+                int peak = peakX(midX, yMax, nums);
+                if (peak == 0)
+                    return new int[]{yMax, midX};
+                else if (peak == -1)
+                    hiX = midX;
+                else if (peak == 1)
+                    loX = midX + 1;
             } else {
-                int peak_row = maxXIndex(mid_col, left, right, nums);
-                if (peakY(peak_row, mid_col, nums) == 0) {
-                    int[] res = {mid_col, peak_row};
-                    return res;
-                } else if (peakY(mid_col, peak_row, nums) == -1) {
-                    bottom = mid_col;
-                } else {
-                    top = mid_col;
-                }
+                int midY = (hiY + loY) / 2;
+                int xMax = maxXIndex(midY, loX, hiX, nums);
+                int peak = peakY(xMax, midY, nums);
+                if (peak == 0)
+                    return new int[]{midY, xMax};
+                else if (peak == -1)
+                    hiY = midY;
+                else if (peak == 1)
+                    loY = midY + 1;
             }
-            counter++;
+            middleColumn = !middleColumn;
         }
-        return new int[] {0,0};
+        return null;
     }
 
 }
