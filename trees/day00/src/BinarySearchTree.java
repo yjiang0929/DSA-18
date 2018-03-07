@@ -1,3 +1,6 @@
+import jdk.nashorn.api.tree.Tree;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class BinarySearchTree<T extends Comparable<T>> {
@@ -28,8 +31,24 @@ public class BinarySearchTree<T extends Comparable<T>> {
     }
 
     public List<T> inOrderTraversal() {
-        // TODO
-        return null;
+        // Runtime O(N)
+        ArrayList<T> result = new ArrayList<>();
+        if (root == null) {
+            return result;
+        } else {
+            if (root.hasLeftChild()) {
+                root = root.leftChild;
+                result.addAll(inOrderTraversal());
+                root = root.parent;
+            }
+            result.add(root.key);
+            if (root.hasRightChild()) {
+                root = root.rightChild;
+                result.addAll(inOrderTraversal());
+                root = root.parent;
+            }
+        }
+        return result;
     }
 
     /**
@@ -57,6 +76,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
         if (n == null) return null;
 
         TreeNode<T> replacement;
+        boolean isCase3 = false;
 
         if (n.isLeaf())
             // Case 1: no children
@@ -66,13 +86,19 @@ public class BinarySearchTree<T extends Comparable<T>> {
             replacement = (n.hasRightChild()) ? n.rightChild : n.leftChild; // replacement is the non-null child
         else {
             // Case 3: two children
-            // TODO
-            replacement = null;
+            replacement = findSuccessor(n);
+            delete(replacement);
+            n.key = replacement.key;
+            isCase3 = true;
         }
 
         // Put the replacement in its correct place, and set the parent.
-        n.replaceWith(replacement);
-        return replacement;
+        if (!isCase3) {
+            n.replaceWith(replacement);
+            return replacement;
+        } else {
+            return n;
+        }
     }
 
     public T findPredecessor(T key) {
@@ -96,13 +122,47 @@ public class BinarySearchTree<T extends Comparable<T>> {
     }
 
     private TreeNode<T> findPredecessor(TreeNode<T> n) {
-        // TODO
-        return null;
+        // Worst Case Runtime: O(N)
+        if (n.hasLeftChild()) {
+            TreeNode<T> predecessor = n.leftChild;
+            while (predecessor.hasRightChild()) {
+                predecessor = predecessor.rightChild;
+            }
+            return predecessor;
+        } else {
+            TreeNode<T> predecessor = n.parent;
+            if (predecessor==null) { return null; };
+            while (predecessor.hasLeftChild() && predecessor.leftChild==n) {
+                n = predecessor;
+                predecessor = predecessor.parent;
+                if (predecessor == null) {
+                    return null;
+                }
+            }
+            return predecessor;
+        }
     }
 
     private TreeNode<T> findSuccessor(TreeNode<T> n) {
-        // TODO
-        return null;
+        // Worst Case Runtime: O(N)
+        if (n.hasRightChild()) {
+            TreeNode<T> successor = n.rightChild;
+            while (successor.hasLeftChild()) {
+                successor = successor.leftChild;
+            }
+            return successor;
+        } else {
+            TreeNode<T> successor = n.parent;
+            if (successor == null) {return null;}
+            while (successor.hasRightChild() && successor.rightChild == n) {
+                n = successor;
+                successor = successor.parent;
+                if (successor == null) {
+                    return null;
+                }
+            }
+            return successor;
+        }
     }
 
     /**
