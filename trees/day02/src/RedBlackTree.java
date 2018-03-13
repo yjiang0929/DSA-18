@@ -1,3 +1,5 @@
+import jdk.nashorn.api.tree.Tree;
+
 import java.util.NoSuchElementException;
 
 
@@ -28,19 +30,29 @@ public class RedBlackTree<T extends Comparable<T>> extends BinarySearchTree<T> {
 
     // make a left-leaning link lean to the right
     TreeNode<T> rotateRight(TreeNode<T> h) {
-        // TODO
-        return h;
+        TreeNode<T> rotatedNode = h.leftChild;
+        h.leftChild = rotatedNode.rightChild;
+        rotatedNode.rightChild = h;
+        rotatedNode.color = h.color;
+        h.color = RED;
+        return rotatedNode;
     }
 
     // make a right-leaning link lean to the left
     TreeNode<T> rotateLeft(TreeNode<T> h) {
-        // TODO
-        return h;
+        TreeNode<T> rotatedNode = h.rightChild;
+        h.rightChild = rotatedNode.leftChild;
+        rotatedNode.leftChild = h;
+        rotatedNode.color = h.color;
+        h.color = RED;
+        return rotatedNode;
     }
 
     // flip the colors of a TreeNode and its two children
     TreeNode<T> flipColors(TreeNode<T> h) {
-        // TODO
+        h.color = !h.color;
+        h.leftChild.color = !h.leftChild.color;
+        h.rightChild.color = !h.rightChild.color;
         return h;
     }
 
@@ -53,19 +65,27 @@ public class RedBlackTree<T extends Comparable<T>> extends BinarySearchTree<T> {
      * return balanced node
      */
     private TreeNode<T> balance(TreeNode<T> h) {
-        // TODO
+        if (h.leftChild!= null && h.rightChild!= null && h.leftChild.color == RED && h.rightChild.color == RED) {
+            return flipColors(h);
+        } else if (h.rightChild!=null && h.rightChild.color==RED) {
+            return rotateLeft(h);
+        } else if (h.leftChild!= null && h.leftChild.leftChild!= null && h.leftChild.color == RED && h.leftChild.leftChild.color == RED) {
+            return flipColors(rotateRight(h));
+        }
         return h;
     }
 
 
     /**
      * Recursively insert a new node into the BST
-     * Runtime: TODO
+     * Runtime: O(log N)
      */
     @Override
     TreeNode<T> insert(TreeNode<T> h, T key) {
         h = super.insert(h, key);
-        // TODO: use balance to correct for the three rotation cases
+        if (h != null) {
+            h = balance(h);
+        }
         return h;
     }
 
@@ -108,6 +128,7 @@ public class RedBlackTree<T extends Comparable<T>> extends BinarySearchTree<T> {
         // OPTIONAL TODO: write this function and use it in delete(h, key)
         return h;
     }
+
     // delete the key-value pair with the given key rooted at h
     TreeNode<T> delete(TreeNode<T> h, T key) {
         // OPTIONAL TODO
