@@ -1,5 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class NQueens {
 
@@ -48,10 +47,35 @@ public class NQueens {
         return B;
     }
 
+    public static void backtrack(char[][] board, LinkedList<Integer> used, Set<Integer> unused, List<char[][]> answers){
+        if (unused.isEmpty()) {
+            answers.add(copyOf(board));
+        }
+        for (int i: new LinkedList<>(unused)) {
+            board[used.size()][i] = 'Q';
+            if (!checkDiagonal(board, used.size(),i)) {
+                used.addLast(i);
+                unused.remove(i);
+                backtrack(board, used, unused, answers);
+                unused.add(i);
+                used.removeLast();
+            }
+            board[used.size()][i] = '.';
+        }
+    }
 
     public static List<char[][]> nQueensSolutions(int n) {
-        // TODO
         List<char[][]> answers = new ArrayList<>();
+        char[][] board = new char[n][n];
+        for (char[] row : board) {
+            Arrays.fill(row, '.');
+        }
+        Set<Integer> unused = new HashSet();
+        for (int i=0;i<n;i++) {
+            unused.add(i);
+        }
+        LinkedList<Integer> used = new LinkedList<>();
+        backtrack(board, used, unused, answers);
         return answers;
     }
 

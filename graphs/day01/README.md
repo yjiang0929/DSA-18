@@ -36,7 +36,7 @@ For example, here is one of the two 4-queens solutions:
 
 ![](https://developers.google.com/optimization/images/queens/sol_4x4_b.png)
 
-Write your code in the `NQueens` class. Note that for the tests to pass, you will need to represent the chess-board as a `char[n][n]` - an NxN 2-D `char` array. Represent blank squares with a period: `'.'`, and queens with a capital `'Q'`.
+Write your code in the `NQueens` class. Note that for the testsr` array. Represent blank squares with a period: `'. to pass, you will need to represent the chess-board as a `char[n][n]` - an NxN 2-D `cha'`, and queens with a capital `'Q'`.
 
 <details>
   <summary>Hint 1</summary>
