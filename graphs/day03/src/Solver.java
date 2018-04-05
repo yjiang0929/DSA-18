@@ -5,17 +5,19 @@
 
 import java.util.*;
 
-public class Solver {
+public class Solver{
 
     public int minMoves = -1;
-    private State solutionState;
+    private State currentState;
     private boolean solved = false;
+    private LinkedList<State> open = new LinkedList<>();
+    private LinkedList<State> closed = new LinkedList<>();
 
     /**
      * State class to make the cost calculations simple
      * This class holds a board state and all of its attributes
      */
-    private class State {
+    private class State implements Comparable<State> {
         // Each state needs to keep track of its cost and the previous state
         private Board board;
         private int moves; // equal to g-cost in A*
@@ -26,8 +28,8 @@ public class Solver {
             this.board = board;
             this.moves = moves;
             this.prev = prev;
-            // TODO
-            cost = 0;
+
+            cost = moves + board.manhattan();
         }
 
         @Override
@@ -37,6 +39,12 @@ public class Solver {
             if (!(s instanceof State)) return false;
             return ((State) s).board.equals(this.board);
         }
+
+        @Override
+        public int compareTo(State otherState){
+            return Integer.compare(cost, otherState.cost);
+        }
+
     }
 
     /*
@@ -52,8 +60,25 @@ public class Solver {
      * Find a solution to the initial board using A* to generate the state tree
      * and a identify the shortest path to the the goal state
      */
-    public Solver(Board initial) {
-        // TODO: Your code here
+    public Solver(Board initial) { // Solver Wrapper
+        currentState = new State(initial, 0, null);
+        if (isSolvable()){
+            currentState.cost = 0;
+            open.add(currentState);
+
+            while (!open.isEmpty()){
+                int tmpmin = Integer.MAX_VALUE;
+                int tmpind = -1;
+                for (State s : open){
+                    if (s.cost < tmpmin){
+                        tmpmin = s.cost;
+                        tmpind = ;
+                        open.remove();
+                    }
+                }
+            }
+        }
+
     }
 
     /*
@@ -61,17 +86,19 @@ public class Solver {
      * Research how to check this without exploring all states
      */
     public boolean isSolvable() {
-        // TODO: Your code here
-        return false;
+        return currentState.board.solvable();
     }
 
     /*
      * Return the sequence of boards in a shortest solution, null if unsolvable
      */
-    public Iterable<Board> solution() {
-        // TODO: Your code here
+    /*public Iterable<Board> solution() { //Solver Iterator
+
         return null;
-    }
+    }*/
+
+    //public void solution() {
+    //}
 
     public State find(Iterable<State> iter, Board b) {
         for (State s : iter) {
