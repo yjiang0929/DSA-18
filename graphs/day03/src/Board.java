@@ -9,7 +9,6 @@ public class Board {
     private int n;
     public int[][] tiles;
 
-    //TODO
     // Create a 2D array representing the solved board state
     private int[][] goal = {{}};
 
@@ -17,7 +16,19 @@ public class Board {
      * Set the global board size and tile state
      */
     public Board(int[][] b) {
-        // TODO: Your code here
+        tiles = b;
+        n = b.length * b.length -1;
+
+        goal = new int[b.length][b.length];
+        for (int i=0;i<b.length;i++) {
+            for (int j=0;j<b.length;j++) {
+                if (i==b.length-1 && j==b.length-1) {
+                    goal[i][j] = 0;
+                } else {
+                    goal[i][j] = i*b.length+j + 1;
+                }
+            }
+        }
     }
 
     /*
@@ -25,24 +36,36 @@ public class Board {
      (equal to 3 for 8 puzzle, 4 for 15 puzzle, 5 for 24 puzzle, etc)
      */
     private int size() {
-        // TODO: Your code here
-        return 0;
+        return (int) Math.sqrt(n+1);
     }
 
     /*
      * Sum of the manhattan distances between the tiles and the goal
      */
     public int manhattan() {
-        // TODO: Your code here
-        return 0;
+        int sum = 0;
+        for (int i=0;i<size();i++) {
+            for (int j=0;j<size();j++) {
+                if (tiles[i][j] != 0) {
+                    sum += Math.abs(i-(tiles[i][j]-1) / size()) + Math.abs(j-(tiles[i][j]-1) % size());
+                }
+            }
+        }
+        return sum;
     }
 
     /*
      * Compare the current state to the goal state
      */
     public boolean isGoal() {
-        // TODO: Your code here
-        return false;
+        for (int i=0;i<size();i++) {
+            for (int j=0;j<size();j++) {
+                if (tiles[i][j]!= goal[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /*
