@@ -10,7 +10,7 @@ public class Solver{
     public int minMoves = -1;
     private State currentState;
     private boolean solved = false;
-    private LinkedList<State> open = new LinkedList<>();
+    private PriorityQueue<State> open = new PriorityQueue<>();
     private LinkedList<State> closed = new LinkedList<>();
 
     /**
@@ -50,10 +50,10 @@ public class Solver{
     /*
      * Return the root state of a given state
      */
-    private State root(State state) {
+    /*private State root(State state) {
         // TODO: Your code here
         return null;
-    }
+    }*/
 
     /*
      * A* Solver
@@ -64,22 +64,43 @@ public class Solver{
         currentState = new State(initial, 0, null);
         if (isSolvable()){
             currentState.cost = 0;
-            open.add(currentState);
+            open.offer(currentState);
 
             while (!open.isEmpty()){
-                int tmpmin = Integer.MAX_VALUE;
-                int tmpind = -1;
-                for (State s : open){
-                    if (s.cost < tmpmin){
-                        tmpmin = s.cost;
-                        tmpind = ;
-                        open.remove();
+                State q = open.poll();
+                for (Board u : q.board.neighbors()){
+                    if (u.isGoal()){
+                        minMoves = currentState.moves + 1;
+                        return;
+                    }
+                    State u_state = new State(u, q.moves+1, q);
+
+                    boolean ignore = false;
+                    for (State n : open){
+                        if (n.equals(u_state) && n.cost < u_state.cost) {
+                            ignore = true;
+                            break;
+                        }
+                    }
+                    if (!ignore) {
+                        for (State n : closed){
+                            if (n.equals(u_state) && n.cost < u_state.cost){
+                                ignore = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!ignore){
+                        u_state.prev = q;
+                        open.offer(u_state);
                     }
                 }
+
+                closed.add(q);
             }
         }
-
     }
+
 
     /*
      * Is the input board a solvable state
