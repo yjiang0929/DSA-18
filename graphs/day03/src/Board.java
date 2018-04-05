@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -73,16 +74,54 @@ public class Board {
      * Research how to check this without exploring all states
      */
     public boolean solvable() {
-        // TODO: Your code here
-        return false;
+        List<Integer> temp = new ArrayList<>();
+        for (int i=0;i<size();i++) {
+            for (int j=0;j<size();j++) {
+                temp.add(tiles[i][j]);
+            }
+        }
+        int inv = 0;
+        for (int i=0;i<temp.size();i++) {
+            for (int j=i+1;j<temp.size();j++) {
+                if (temp.get(i) > temp.get(j)){
+                    inv += 1;
+                }
+            }
+        }
+        if (inv % 2 == 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /*
      * Return all neighboring boards in the state tree
      */
     public Iterable<Board> neighbors() {
-        // TODO: Your code here
-        return null;
+        List<Board> result = new ArrayList<>();
+        int[][] replace = {{0,1},{1,0},{0,-1},{-1,0}};
+        int zero_x = 0;
+        int zero_y = 0;
+        for (int i=0;i<size();i++) {
+            for (int j=0;j<size();j++) {
+                if (tiles[i][j] == 0) {
+                    zero_x = i;
+                    zero_y = j;
+                    break;
+                }
+            }
+        }
+        for (int i=0;i<4;i++) {
+            int new_x = zero_x+replace[i][0];
+            int new_y = zero_y+replace[i][1];
+            if (new_x>=0 && new_y>=0 && new_x<=4 && new_y<=4) {
+                tiles[zero_x][zero_y] = tiles[new_x][new_y];
+                tiles[new_x][new_y] = 0;
+                result.add(new Board(tiles));
+            }
+        }
+        return result;
     }
 
     /*
