@@ -70,7 +70,7 @@ public class Solver{
                 State q = open.poll();
                 for (Board u : q.board.neighbors()){
                     if (u.isGoal()){
-                        minMoves = currentState.moves + 1;
+                        minMoves = q.moves + 1;
                         return;
                     }
                     State u_state = new State(u, q.moves+1, q);

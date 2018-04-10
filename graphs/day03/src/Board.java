@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class Board {
      */
     public Board(int[][] b) {
         tiles = b;
-        n = b.length * b.length -1;
+        n = b.length;
 
         goal = new int[b.length][b.length];
         for (int i=0;i<b.length;i++) {
@@ -37,7 +38,7 @@ public class Board {
      (equal to 3 for 8 puzzle, 4 for 15 puzzle, 5 for 24 puzzle, etc)
      */
     private int size() {
-        return (int) Math.sqrt(n+1);
+        return n;
     }
 
     /*
@@ -83,7 +84,7 @@ public class Board {
         int inv = 0;
         for (int i=0;i<temp.size();i++) {
             for (int j=i+1;j<temp.size();j++) {
-                if (temp.get(i) > temp.get(j)){
+                if (temp.get(i) > temp.get(j) && temp.get(i)!=0 && temp.get(j)!=0){
                     inv += 1;
                 }
             }
@@ -115,10 +116,16 @@ public class Board {
         for (int i=0;i<4;i++) {
             int new_x = zero_x+replace[i][0];
             int new_y = zero_y+replace[i][1];
-            if (new_x>=0 && new_y>=0 && new_x<=4 && new_y<=4) {
+            if (new_x>=0 && new_y>=0 && new_x<size() && new_y<size()) {
                 tiles[zero_x][zero_y] = tiles[new_x][new_y];
                 tiles[new_x][new_y] = 0;
-                result.add(new Board(tiles));
+                int[][] temp_tiles = new int[size()][size()];
+                for (int j = 0; j < size(); j++) {
+                    System.arraycopy(tiles[j], 0, temp_tiles[j], 0, size());
+                }
+                result.add(new Board(temp_tiles));
+                tiles[new_x][new_y] = tiles[zero_x][zero_y];
+                tiles[zero_x][zero_y] = 0;
             }
         }
         return result;
@@ -151,7 +158,7 @@ public class Board {
 
     public static void main(String[] args) {
         // DEBUG - Your solution can include whatever output you find useful
-        int[][] initState = {{1, 2, 3}, {4, 0, 6}, {7, 8, 5}};
+        int[][] initState = {{1, 0, 3}, {2, 4, 5}, {6, 7, 8}};
         Board board = new Board(initState);
 
         System.out.println("Size: " + board.size());
