@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RubiksCube {
 
     private BitSet cube;
+    private BitSet solved;
 
     // initialize a solved rubiks cube
     public RubiksCube() {
@@ -40,12 +41,12 @@ public class RubiksCube {
 
     /**
      * return a hashCode for this rubik's cube.
-     *
+     * <p>
      * Your hashCode must follow this specification:
-     *   if A.equals(B), then A.hashCode() == B.hashCode()
-     *
+     * if A.equals(B), then A.hashCode() == B.hashCode()
+     * <p>
      * Note that this does NOT mean:
-     *   if A.hashCode() == B.hashCode(), then A.equals(B)
+     * if A.hashCode() == B.hashCode(), then A.equals(B)
      */
     @Override
     public int hashCode() {
@@ -54,6 +55,11 @@ public class RubiksCube {
 
     public boolean isSolved() {
         return this.equals(new RubiksCube());
+    }
+
+    //need to see if a cube is solvabe
+    public boolean isSolvable(){
+        return ;
     }
 
 
@@ -155,12 +161,12 @@ public class RubiksCube {
         RubiksCube r = new RubiksCube();
         char[] listTurns = getScramble(numTurns);
         for (int i = 0; i < numTurns; i++) {
-            r= r.rotate(listTurns[i]);
+            r = r.rotate(listTurns[i]);
         }
         return r;
     }
 
-    public static char[] getScramble(int size){
+    public static char[] getScramble(int size) {
         char[] listTurns = new char[size];
         for (int i = 0; i < size; i++) {
             switch (ThreadLocalRandom.current().nextInt(0, 6)) {
@@ -188,9 +194,82 @@ public class RubiksCube {
     }
 
 
+    private class State {
+        private RubiksCube cube;
+        private int moves;                       // g-cost in A*
+        public int cost;                         // f-cost in A*
+        private State prev;
+
+        public State(RubiksCube cube, int moves, State prev) {
+            this.cube = cube;
+            this.moves = moves;
+            this.prev = prev;
+            cost = findCost();
+        }
+
+        public int findCost() {
+            int g = this.moves;
+            int sum = 0;
+            //int f = this.cube.distance();
+            //int sum = f + g;
+            return sum;
+        }
+
+        // Need to calculate heuristic distance
+        public int distance() {
+            return 0;
+        }
+
+        @Override
+        public boolean equals(Object s) {
+            if (s == this) return true;
+            if (s == null) return false;
+            if (!(s instanceof State)) return false;
+            return ((State) s).cube.equals(this.cube);
+        }
+    }
+
+
     // return the list of rotations needed to solve a rubik's cube
     public List<Character> solve() {
-        // TODO
+        if (!cube.solvable()) {
+            return;
+        }
+
+        Queue<State> open = new PriorityQueue<>(5, (a,b) -> a.findCost() - b.findCost());
+        Map<State, Integer> minCostVisited = new HashMap<>();
+        open.add(new State(cube, 0, null));
+
+        while (open.peek() != null) {
+            State q = open.poll();
+
+            Iterable<State> successors = neighbors(q);
+
+            // look at each successor
+            for (State u: successors) {
+                if (u.board.isGoal()) {
+                    this.minMoves = u.moves;
+                    this.solved = true;
+                    return;
+                }
+
+                // check if we have visited u
+                // if visited cost is higher than u
+                // re-visit u
+                if (minCostVisited.containsKey(u)) {
+                    if (minCostVisited.get(u) > u.totalCost()) {
+                        open.add(u);
+                    }
+                } else { // we have never visited u - add to open
+                    open.add(u);
+                }
+            }
+
+            // add q to minCostVisited - as it is a visited node
+            minCostVisited.put(q, q.totalCost());
+        }
+
+
         return new ArrayList<>();
     }
 
