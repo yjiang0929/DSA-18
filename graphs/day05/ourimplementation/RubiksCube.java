@@ -1,6 +1,7 @@
+import javax.print.DocFlavor;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-
 
 // this is our implementation of a rubiks cube. It is your job to use A* or some other search algorithm to write a
 // solve() function
@@ -8,6 +9,10 @@ public class RubiksCube {
 
     private BitSet cube;
     private BitSet solved;
+
+    public static HashMap<Set<Integer>,ArrayList<Integer>> location_dict;
+    public static HashMap<Set<Integer>,ArrayList<Integer>> color_dict;
+    public static ArrayList<ArrayList<Integer>> cubie_list;
 
     // initialize a solved rubiks cube
     public RubiksCube() {
@@ -18,7 +23,41 @@ public class RubiksCube {
                 setColor(side * 4 + i, side);
             }
         }
+
+        location_dict = new HashMap<>();
+        color_dict = new HashMap<>();
+        cubie_list = new ArrayList<>();
+
+        // define color mappings
+        color_dict.put(new HashSet<>(Arrays.asList(0,1,2)), new ArrayList<>(Arrays.asList(0,0,1)));
+        color_dict.put(new HashSet<>(Arrays.asList(1,2,3)), new ArrayList<>(Arrays.asList(0,0,0)));
+        color_dict.put(new HashSet<>(Arrays.asList(0,2,4)), new ArrayList<>(Arrays.asList(0,1,1)));
+        color_dict.put(new HashSet<>(Arrays.asList(2,3,4)), new ArrayList<>(Arrays.asList(0,1,0)));
+        color_dict.put(new HashSet<>(Arrays.asList(0,1,5)), new ArrayList<>(Arrays.asList(1,0,1)));
+        color_dict.put(new HashSet<>(Arrays.asList(1,3,5)), new ArrayList<>(Arrays.asList(1,0,0)));
+        color_dict.put(new HashSet<>(Arrays.asList(0,4,5)), new ArrayList<>(Arrays.asList(1,1,1)));
+        color_dict.put(new HashSet<>(Arrays.asList(3,4,5)), new ArrayList<>(Arrays.asList(1,1,0)));
+
+        // define location mappings
+        location_dict.put(new HashSet<>(Arrays.asList(2,5,8)), new ArrayList<>(Arrays.asList(0,0,1)));
+        location_dict.put(new HashSet<>(Arrays.asList(6,11,14)), new ArrayList<>(Arrays.asList(0,0,0)));
+        location_dict.put(new HashSet<>(Arrays.asList(1,9,17)), new ArrayList<>(Arrays.asList(0,1,1)));
+        location_dict.put(new HashSet<>(Arrays.asList(10,18,13)), new ArrayList<>(Arrays.asList(0,1,0)));
+        location_dict.put(new HashSet<>(Arrays.asList(3,4,20)), new ArrayList<>(Arrays.asList(1,0,1)));
+        location_dict.put(new HashSet<>(Arrays.asList(7,15,23)), new ArrayList<>(Arrays.asList(1,0,0)));
+        location_dict.put(new HashSet<>(Arrays.asList(0,16,21)), new ArrayList<>(Arrays.asList(1,1,1)));
+        location_dict.put(new HashSet<>(Arrays.asList(12,19,22)), new ArrayList<>(Arrays.asList(1,1,0)));
+
+        cubie_list.add(new ArrayList<>(Arrays.asList(0,16,21)));
+        cubie_list.add(new ArrayList<>(Arrays.asList(1,9,17)));
+        cubie_list.add(new ArrayList<>(Arrays.asList(2,5,8)));
+        cubie_list.add(new ArrayList<>(Arrays.asList(3,4,20)));
+        cubie_list.add(new ArrayList<>(Arrays.asList(12,19,22)));
+        cubie_list.add(new ArrayList<>(Arrays.asList(10,13,18)));
+        cubie_list.add(new ArrayList<>(Arrays.asList(6,11,14)));
+        cubie_list.add(new ArrayList<>(Arrays.asList(7,15,23)));
     }
+
 
     // initialize a rubiks cube with the input bitset
     private RubiksCube(BitSet s) {
@@ -56,12 +95,6 @@ public class RubiksCube {
     public boolean isSolved() {
         return this.equals(new RubiksCube());
     }
-
-    //need to see if a cube is solvabe
-    public boolean isSolvable(){
-        return ;
-    }
-
 
     // takes in 3 bits where bitset.get(0) is the MSB, returns the corresponding int
     private static int bitsetToInt(BitSet s) {
@@ -193,31 +226,44 @@ public class RubiksCube {
         return listTurns;
     }
 
+    private int distance() {
+        int total = 0;
+        for (ArrayList<Integer> cubie : cubie_list) {
+            HashSet<Integer> temp_color = new HashSet<>();
+            HashSet<Integer> temp_loc = new HashSet<>();
+            for (Integer i:cubie) {
+                temp_color.add(getColor(i));
+                temp_loc.add(i);
+            }
+            ArrayList<Integer> correct_location = color_dict.get(temp_color);
+            ArrayList<Integer> current_location = location_dict.get(temp_loc);
+            for (int j=0;j<3;j++) {
+                total += Math.abs(correct_location.get(j) - current_location.get(j));
+            }
+        }
+        return total;
+    }
 
-    private class State {
+    public class State {
         private RubiksCube cube;
         private int moves;                       // g-cost in A*
         public int cost;                         // f-cost in A*
         private State prev;
+        private char rotation;
 
-        public State(RubiksCube cube, int moves, State prev) {
+        public State(RubiksCube cube, int moves, State prev, char rotation) {
             this.cube = cube;
             this.moves = moves;
             this.prev = prev;
+            this.rotation = rotation;
             cost = findCost();
         }
 
         public int findCost() {
             int g = this.moves;
-            int sum = 0;
-            //int f = this.cube.distance();
-            //int sum = f + g;
+            int f = this.cube.distance();
+            int sum = f + g;
             return sum;
-        }
-
-        // Need to calculate heuristic distance
-        public int distance() {
-            return 0;
         }
 
         @Override
@@ -229,16 +275,21 @@ public class RubiksCube {
         }
     }
 
+    private ArrayList<State> neighbors(State current) {
+        char[] rotations = {'u', 'U', 'r', 'R', 'f', 'F'};
+        ArrayList<State> result = new ArrayList<>();
+        for (int i=0;i<6;i++) {
+            result.add(new State(current.cube.rotate(rotations[i]),current.moves+1, current, rotations[i]));
+        }
+        return result;
+    }
 
     // return the list of rotations needed to solve a rubik's cube
     public List<Character> solve() {
-        if (!cube.solvable()) {
-            return;
-        }
 
         Queue<State> open = new PriorityQueue<>(5, (a,b) -> a.findCost() - b.findCost());
         Map<State, Integer> minCostVisited = new HashMap<>();
-        open.add(new State(cube, 0, null));
+        open.add(new State(this, 0, null, ' '));
 
         while (open.peek() != null) {
             State q = open.poll();
@@ -247,17 +298,21 @@ public class RubiksCube {
 
             // look at each successor
             for (State u: successors) {
-                if (u.board.isGoal()) {
-                    this.minMoves = u.moves;
-                    this.solved = true;
-                    return;
+                if (u.cube.isSolved()) {
+                    List<Character> answer = new ArrayList<>();
+                    while (u.rotation != ' ') {
+                        answer.add(u.rotation);
+                        u = u.prev;
+                    }
+                    Collections.reverse(answer);
+                    return answer;
                 }
 
                 // check if we have visited u
                 // if visited cost is higher than u
                 // re-visit u
                 if (minCostVisited.containsKey(u)) {
-                    if (minCostVisited.get(u) > u.totalCost()) {
+                    if (minCostVisited.get(u) > u.findCost()) {
                         open.add(u);
                     }
                 } else { // we have never visited u - add to open
@@ -266,9 +321,8 @@ public class RubiksCube {
             }
 
             // add q to minCostVisited - as it is a visited node
-            minCostVisited.put(q, q.totalCost());
+            minCostVisited.put(q, q.findCost());
         }
-
 
         return new ArrayList<>();
     }
