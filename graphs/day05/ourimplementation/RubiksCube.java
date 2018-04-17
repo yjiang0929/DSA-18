@@ -234,6 +234,7 @@ public class RubiksCube {
             for (Integer i:cubie) {
                 temp_color.add(getColor(i));
                 temp_loc.add(i);
+//                System.out.println(i);
             }
             ArrayList<Integer> correct_location = color_dict.get(temp_color);
             ArrayList<Integer> current_location = location_dict.get(temp_loc);
@@ -241,7 +242,7 @@ public class RubiksCube {
                 total += Math.abs(correct_location.get(j) - current_location.get(j));
             }
         }
-        return total;
+        return total/2;
     }
 
     public class State {
