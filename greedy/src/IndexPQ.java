@@ -40,16 +40,17 @@ public class IndexPQ<Key extends Comparable<Key>> {
         swim(n);
     }
 
-    public int delMin() {
+    public int[] delMin() {
         if (n == 0) throw new NoSuchElementException("Priority queue underflow");
         int min = pq[1];
         exch(1, n--);
         sink(1);
         assert min == pq[n + 1];
         qp[min] = -1;        // delete
+        int temp = (Integer) keys[min];
         keys[min] = null;    // to help with garbage collection
         pq[n + 1] = -1;        // not needed
-        return min;
+        return new int[]{min, temp};
     }
 
 
@@ -69,10 +70,11 @@ public class IndexPQ<Key extends Comparable<Key>> {
     public void decreaseKey(int i, Key key) {
         if (i < 0 || i >= maxN) throw new IllegalArgumentException();
         if (!contains(i)) throw new NoSuchElementException("index is not in the priority queue");
-        if (keys[i].compareTo(key) <= 0)
-            throw new IllegalArgumentException("Calling decreaseKey() with given argument would not strictly decrease the key");
-        keys[i] = key;
-        swim(qp[i]);
+        if (keys[i].compareTo(key) > 0) {
+            keys[i] = key;
+            swim(qp[i]);
+        }
+//            throw new IllegalArgumentException("Calling decreaseKey() with given argument would not strictly decrease the key");
     }
 
 

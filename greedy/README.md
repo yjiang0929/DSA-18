@@ -42,7 +42,7 @@ Urban planner David is designing roads for a new town. There are multiple import
 
 <p align="center">
   <img src="https://scontent-lga3-1.xx.fbcdn.net/v/t34.0-12/30421769_1855304341437101_1642452094_n.png?_nc_cat=0&oh=d77cfa45e8d2e352435c6c7b0bae06fd&oe=5AD4A6D7" width="350"/>
-</p>
+    </p>
 *Note: Green dots are locations, and the price of building a road between two locations is indicated as integers. In this case, the optimal road is marked by thickened lines.*
 
 A map of the town is represented by a `EdgeWeightedGraph` G.
