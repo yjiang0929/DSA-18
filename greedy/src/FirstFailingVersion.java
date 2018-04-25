@@ -1,4 +1,4 @@
-public class  FirstFailingVersion {
+public class  sFirstFailingVersion {
 
     public static long firstBadVersion(long n, IsFailingVersion isBadVersion) {
         long start = 0;
